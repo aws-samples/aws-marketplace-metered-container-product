@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    labels:
+        app.kubernetes.io/name: {{.Values.ic.name}}
+    name: {{.Values.ic.name}}
+    namespace: kube-system
+spec:
+    selector:
+        matchLabels:
+            app.kubernetes.io/name: {{.Values.ic.name}}
+    template:
+        metadata:
+            labels:
+                app.kubernetes.io/name: {{.Values.ic.name}}
+        spec:
+            containers:
+            - name: {{.Values.ic.name}}
+              args:
+              - --ingress-class=alb
+              - --cluster-name={{.Values.app}}cluster
+              - --aws-vpc-id={{required "You need to provide a value for .Values.vpcId" .Values.vpcId}}
+              - --aws-region={{.Values.region}}
+              image: "{{.Values.ic.imageName}}:{{.Values.ic.imageVersion}}"
+            serviceAccountName: {{.Values.app}}icsa

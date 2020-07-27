@@ -1,0 +1,14 @@
+# Default values for helm.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+app : mcp # metered container product
+productCode:
+region:
+vpcId:
+
+mcp: # metered container product
+    replicas: 1
+    imageName:
+    imageVersion:
+

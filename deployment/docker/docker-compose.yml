@@ -1,0 +1,9 @@
+version: "3"
+services: 
+    mcp:
+        build: 
+            context: ../../
+            dockerfile: ./deployment/docker/Dockerfile
+        ports:
+            - "80:80"
+        image: ${PRODUCT_NAME}:${PRODUCT_VERSION}

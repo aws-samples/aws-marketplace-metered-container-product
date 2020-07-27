@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    alb.ingress.kubernetes.io/target-type: ip
+  labels:
+    app: {{.Values.app}}
+  name: {{.Values.app}}
+  namespace: "default"
+spec:
+  selector:
+    app: {{.Values.app}}
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
