@@ -4,7 +4,7 @@
 
 AWS Marketplace is a digital catalog with thousands of software solutions from Independent Software Vendors (ISVs). It makes it easy for AWS customers to find, test, buy and deploy software in minutes on AWS. By listing your software in AWS Marketplace, you can reach a worldwide target audience while reducing procurement time for your customer.
 
-AWS Marketplace offers sellers multiple delivery methods and pricing models. Delivery methods include Amazon Machine Images (AMIs), Amazon SageMaker, Cloud Formation Stacks, Containers, Private Image Build and SaaS. Pricing models include hourly, monthly, yearly, and metered. The metered pricing model enables you to charge based on any unit relevant for your product. That could be for example the number of users, gigabytes of storage used, or the number of requests to an API. You specify what you want to charge for each unit. This pricing model allows buyers to pay only for what they use, so they can more easily try new products.
+AWS Marketplace offers sellers multiple delivery methods and pricing models. Delivery methods include Amazon Machine Images (AMIs), Amazon SageMaker, AWS Cloud Formation Stacks, Containers, Private Image Build and SaaS. Pricing models include hourly, monthly, yearly, and metered. The metered pricing model enables you to charge based on any unit relevant for your product. That could be for example the number of users, gigabytes of storage used, or the number of requests to an API. You specify what you want to charge for each unit. This pricing model allows buyers to pay only for what they use, so they can more easily try new products.
 
 In this post, I show how to create a container-based software product that uses [custom metering](https://docs.aws.amazon.com/marketplace/latest/userguide/container-metering-meterusage.html) as the pricing model. For this, I show how to create a sample API that is charged based on number of requests using [AWS Marketplace Metering Service](https://docs.aws.amazon.com/marketplace/latest/userguide/metering-service.html). The product is hosted using [Amazon Elastic Kubernetes Service](https://aws.amazon.com/eks/)  (Amazon EKS) and [AWS Fargate](https://aws.amazon.com/fargate).
 
@@ -26,13 +26,13 @@ I developed the application in Python, which is easy to understand, even for non
 
 The application consists of two code files. One file, **api.py**, is a sample REST API that would simulate the product you would like to offer in AWS Marketplace. The second file, **marketplace.py**, is the AWS Marketplace Metering Service integration module. By encapsulating the entire AWS Marketplace integration into a single module, your product won’t require major changes to be published in AWS Marketplace. The integration module uses an injected storage object, so swapping the underlying persistence layer doesn’t require any modification on the integration component in itself. Your new storage class only has to extend the **AbstractDimensionsStorage** abstract class.
 
-The sample application charges by the number of calls done to the method in the /mcp/my-product-method path. This is defined as a [dimension](https://docs.aws.amazon.com/marketplace/latest/userguide/pricing-container-products.html). In case you would like to charge for multiple dimensions, you only have to define them as configuration. The Marketplace integration and storage objects work with multiple dimensions without any additional modification.
+The sample application charges by the number of calls done to the method in the /mcp/my-product-method path. This is defined as a [dimension](https://docs.aws.amazon.com/marketplace/latest/userguide/pricing-container-products.html). In case you would like to charge for multiple dimensions, you only have to define them as configuration. The AWS Marketplace integration and storage objects work with multiple dimensions without any additional modification.
 
-We recommend sending metering information on an hourly basis. You should also define how you would like your product to behave in case of a communication problem with the metering service. My sample product has two time periods defined. If the application fails to send the metering information after the first-time period, a warning message is displayed so the buyers can react and fix the problem. If the problem is not fixed and the application continues to fail sending metering information after the second time period, the application stops working.
+We recommend sending metering information on an hourly basis. You should also define how you would like your product to behave in case of a communication problem with the metering service. My sample product has two time periods defined. If the application fails to send the metering information after the first time period, a warning message is displayed so the buyers can react and fix the problem. If the problem is not fixed and the application continues to fail sending metering information after the second time period, the application stops working.
 
 ## Walkthrough
 
-To get the sample product working you need to go through the following steps:
+To get the sample product working, you must complete the following steps:
 
 1. Prerequisites
 2. Create and configure an AWS Cloud9 Instance
@@ -77,7 +77,7 @@ You should see a notification indicating your role has been created, as shown in
 ### *Attach the IAM Role to your instance*
 
 1. Visit [this link to find your Cloud9 EC2 instance](https://console.aws.amazon.com/ec2/v2/home?#Instances:tag:Name=aws-cloud9-.*mcp.*;sort=desc:launchTime).
-2. Select the instance, and then choose **Actions**, and then **Instance Settings**, followed by **Attach** and then **Replace IAM Role**.
+2. Select the instance, and then choose **Actions**, and then **Instance Settings**, followed by **Attach/Replace IAM Role**.
 3. From the **IAM Role** drop-down, choose **mcp-admin**. Select **Apply**.
 
 You should see a notice of the successful creation of your IAM role, as shown in the following screenshot.
@@ -106,7 +106,7 @@ export PRODUCT_NAME=mcp
 git clone https://github.com/aws-samples/aws-marketplace-metered-container-product.git ${PRODUCT_NAME}
 ```
 
-In the repository we just cloned, find the **build.sh** script. You use this script to manage the sample product development lifecycle. To install the rest of the requirements, use the **build.sh** script using the **--requirements** parameter by entering it into Terminal:
+In the repository you just cloned, find the **build.sh** script. You use this script to manage the sample product development lifecycle. To install the rest of the requirements, use the **build.sh** script using the **--requirements** parameter by entering it into Terminal:
 
 ```bash
 ~/environment/${PRODUCT_NAME}/build.sh --requirements
@@ -184,17 +184,17 @@ Security scans are run in all container products that get published in AWS Marke
 
 ### 6. Deploying the sample product
 
-a. Check in the first Terminal to be sure that the Amazon EKS cluster you started creating in Step 3 is fully deployed. It should look similar to the next screenshot. If it hasn’t finished yet, wait until it does and then close the Terminal.
+1. Check in the first Terminal to be sure that the Amazon EKS cluster you started creating in Step 3 is fully deployed. It should look similar to the next screenshot. If it hasn’t finished yet, wait until it does and then close the Terminal.
 
 ![eksctl](images/eksctl.png)
 
-b. In the remaining Terminal you opened in Step 5, set an environment variable to tell the application where to deploy the network load balancer. To do that, enter the AWS CLI’s **eks describe-cluster** command as follows:
+2. In the remaining Terminal you opened in Step 5, set an environment variable to tell the application where to deploy the network load balancer. To do that, enter the AWS CLI’s **eks describe-cluster** command as follows:
 
 ```bash
 export VPC_ID=$(aws eks describe-cluster --name ${PRODUCT_NAME}cluster --region $AWS_REGION  | jq -r '.cluster.resourcesVpcConfig.vpcId')
 ```
 
-c. Before continuing, confirm that all environments variables are set. To do this, enter the following **echo** commands:
+3. Before continuing, confirm that all environments variables are set. To do this, enter the following **echo** commands:
 
 ```bash
 echo $AWS_REGION
@@ -205,19 +205,19 @@ echo $VPC_ID
 echo $ECR_REPOSITORY
 ```
 
-d. To deploy the product, enter the script **build.sh** with the **--deploy** parameter in Terminal:
+4. To deploy the product, enter the script **build.sh** with the **--deploy** parameter in Terminal:
 
 ```bash
 ./build.sh --deploy
 ```
 
-e. You can see the product being started by entering the following command.
+5. You can see the product being started by entering the following command.
 
 ```bash
 kubectl get pods
 ```
 
-f. As part of the deployment, the application creates an Application Load Balancer. It takes a couple of minutes for this Load Balancer to get provisioned and active. To check whether the Load Balancer’s is active, enter the AWS CLI’s **elbv2 describe-load-balancers** command as follows:
+6. As part of the deployment, the application creates an Application Load Balancer. It takes a couple of minutes for this Load Balancer to get provisioned and active. To check whether the Load Balancer’s is active, enter the AWS CLI’s **elbv2 describe-load-balancers** command as follows:
 
 ```bash
 aws elbv2 describe-load-balancers --query 'LoadBalancers[?VpcId==`'"$VPC_ID"'`].State' --output text
@@ -231,11 +231,11 @@ Once you get **active** as output to that command, you can get the application e
 aws elbv2 describe-load-balancers --query 'LoadBalancers[?VpcId==`'"$VPC_ID"'`].DNSName' --output text
 ```
 
-In the following screenshot, you can see the execution of Steps 6e and 6f:
+In the following screenshot, you can see the execution of Steps 6.5 and 6.6:
 
 ![url](images/url.png)
 
-g. Visit the application’s endpoint you got in Step 6f in a new web browser tab. My sample container product has three GET methods.
+7. Visit the application’s endpoint you got in Step 6.6 in a new web browser tab. My sample container product has three GET methods.
 
 * The **my-product-method** represents your product and the request are tracked and send to AWS Marketplace.
 * The **send-metering** allows you to manually send the current number of requests to AWS Marketplace. This is only for testing and debugging purposes. The Marketplace Integration component takes care of the sending this metering information automatically on an hourly basis.
@@ -261,7 +261,7 @@ There are important points to consider when creating real products:
 
 * [A multistage Docker build](https://docs.docker.com/develop/develop-images/multistage-build/) results in a leaner image with only the software bits required to run your application. This reduces possible attack vectors as well.
 * The AWS Marketplace Integration component could be created as separate pods and be used independently in a microservice architecture.
-* You can use AWS CloudFormation rather than eksctl to create your EKS cluster. To get the CloudFormation template generated by eksctl in this tutorial and use it as starting point, visit the CloudFormation Console, select the Stack containing the name you chose in Step 3, and check the **Template** tab. If you didn’t change the product name, the Stack should contain the name **mcp**.  
+* You can use AWS CloudFormation rather than eksctl to create your EKS cluster. To get the AWS CloudFormation template generated by eksctl in this tutorial and use it as starting point, visit the AWS CloudFormation Console, select the Stack containing the name you chose in Step 3, and check the **Template** tab. If you didn’t change the product name, the Stack should contain the name **mcp**.  
 * To enable you to provide your product code, in this blog post, I parametrized the product code as an environment variable. With a real product, you would like to prevent the product code to be modifiable by the user to prevent [metering modification](https://docs.aws.amazon.com/marketplace/latest/userguide/entitlement-and-metering-for-paid-products.html#prevent-metering-modification).
 * For container products, users have access to the product’s images. If your software is written in an interpreted language, buyers could see your code and even deactivate the metering mechanism. For a metered container product, I recommend using a compiled language or compile your interpreted language if possible. You can also consider obfuscating your code.
 
@@ -273,7 +273,7 @@ To avoid incurring future charges, you must delete the resources created in this
 ./build.sh --cleanup
 ```
 
-After the uninstall scripts ends, verify in the [CloudFormation console](https://console.aws.amazon.com/cloudformation) that the Stack containing the name you chose in Step 3 as your product name is deleted successfully. If you didn’t change the product name, the Stack should contain the name **mcp**. Also in the [AWS Cloud9 console](https://us-east-1.console.aws.amazon.com/cloud9/home?region=us-east-1), select the Cloud9 instance and terminate it.
+After the uninstall scripts ends, verify in the AWS [CloudFormation console](https://console.aws.amazon.com/cloudformation) that the Stack containing the name you chose in Step 3 as your product name is deleted successfully. If you didn’t change the product name, the Stack should contain the name **mcp**. Also in the [AWS Cloud9 Console](https://us-east-1.console.aws.amazon.com/cloud9/home?region=us-east-1), select the Cloud9 instance and delete it.
 
 ## Conclusion
 
@@ -281,7 +281,7 @@ In this post, I introduced a sample container product that integrates with AWS M
 
 AWS Marketplace allows you to reach a global audience and offer easy procurement and deployment to your buyers. It also offers additional pricing models and technology to host your product. You can find additional information [in the AWS Marketplace seller guide](https://docs.aws.amazon.com/marketplace/latest/userguide/what-is-marketplace.html). Or get in [contact with us](https://aws.amazon.com/marketplace/management/contact-us).
 
-I hope you found this post useful. I’m planning to expand the reference integration module to additional kind of products, pricing models, and programming languages. I’m really eager to hear your feedback about which integration you would like to see next and your experience with the one released with this blog post. Leave a comment here or email me at aws-mp-integration-feedback@amazon.com.
+I hope you found this post useful. I’m planning to expand the reference integration module to additional kind of products, pricing models, and programming languages. I’m really eager to hear your feedback about which integration you would like to see next and your experience with the one released with this blog post. Email me at aws-mp-integration-feedback@amazon.com.
 
 ## License Summary
 
