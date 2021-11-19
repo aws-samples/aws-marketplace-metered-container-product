@@ -205,19 +205,21 @@ echo $VPC_ID
 echo $ECR_REPOSITORY
 ```
 
-4. To deploy the product, enter the script **build.sh** with the **--deploy** parameter in Terminal:
+4. To install AWS Load Balancer Controller, perform the steps through section “Install AWS Load Balancer Controller through Helm” outlined here https://aws.amazon.com/premiumsupport/knowledge-center/eks-alb-ingress-controller-fargate/ 
+
+5. To deploy the product, enter the script **build.sh** with the **--deploy** parameter in Terminal:
 
 ```bash
 ./build.sh --deploy
 ```
 
-5. You can see the product being started by entering the following command.
+6. You can see the product being started by entering the following command.
 
 ```bash
 kubectl get pods
 ```
 
-6. As part of the deployment, the application creates an Application Load Balancer. It takes a couple of minutes for this Load Balancer to get provisioned and active. To check whether the Load Balancer’s is active, enter the AWS CLI’s **elbv2 describe-load-balancers** command as follows:
+7. As part of the deployment, the application creates an Application Load Balancer. It takes a couple of minutes for this Load Balancer to get provisioned and active. To check whether the Load Balancer’s is active, enter the AWS CLI’s **elbv2 describe-load-balancers** command as follows:
 
 ```bash
 aws elbv2 describe-load-balancers --query 'LoadBalancers[?VpcId==`'"$VPC_ID"'`].State' --output text
@@ -235,7 +237,7 @@ In the following screenshot, you can see the execution of Steps 6.5 and 6.6:
 
 ![url](images/url.png)
 
-7. Visit the application’s endpoint you got in Step 6.6 in a new web browser tab. My sample container product has three GET methods.
+8. Visit the application’s endpoint you got in Step 6.6 in a new web browser tab. My sample container product has three GET methods.
 
 * The **my-product-method** represents your product and the request are tracked and send to AWS Marketplace.
 * The **send-metering** allows you to manually send the current number of requests to AWS Marketplace. This is only for testing and debugging purposes. The Marketplace Integration component takes care of the sending this metering information automatically on an hourly basis.
