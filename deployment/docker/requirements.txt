@@ -1,4 +1,4 @@
-Flask==1.1.1
+Flask==2.3.2
 flask-restplus==0.13
 Werkzeug==0.16.0
 boto3==1.12.20
